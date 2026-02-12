@@ -61,7 +61,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
-const apiURL = import.meta.env.VITE_API_URL;
+const apiURL = 'https://barbearia-backend-f6kd.onrender.com';
 
 const agendamentos = ref([]);
 const loading = ref(true);

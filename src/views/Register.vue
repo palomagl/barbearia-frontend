@@ -38,7 +38,7 @@
   import axios from 'axios';
   import { useRouter } from 'vue-router';
   
-  const apiURL = import.meta.env.VITE_API_URL;
+  const apiURL = 'https://barbearia-backend-f6kd.onrender.com';
 
   const router = useRouter();
   const usuario = ref({
