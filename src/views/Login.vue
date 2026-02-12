@@ -6,7 +6,12 @@
         <input v-model="senha" type="password" placeholder="Sua senha" />
         <button @click="fazerLogin">Entrar</button>
       </div>
-      <p v-if="mensagem">{{ mensagem }}</p>
+      
+      <div style="margin-top: 15px;">
+        <router-link to="/register">Não tem conta? Cadastre-se</router-link>
+      </div>
+
+      <p v-if="mensagem" style="color: red; margin-top: 10px;">{{ mensagem }}</p>
     </div>
   </template>
   
@@ -41,7 +46,9 @@
     }
 
   } catch (err) {
-    mensagem.value = "Erro ao logar: " + (err.response?.data?.error || "Servidor offline");
+    // Melhorando a mensagem de erro
+    console.error("Erro completo:", err); 
+    mensagem.value = "Erro: " + (err.response?.data?.error || "Não foi possível conectar ao servidor.");
   }
 };
   </script>
