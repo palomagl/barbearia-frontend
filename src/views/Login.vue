@@ -9,7 +9,7 @@
       <div class="form">
         <div class="input-group">
           <label>E-mail</label>
-          <input v-model="email" type="email" placeholder="exemplo@email.com" />
+          <input v-model="credenciais.email" type="email" placeholder="exemplo@email.com" />
         </div>
 
         <div class="input-group">
@@ -21,7 +21,9 @@
               placeholder="Sua senha" 
             />
             <button type="button" @click.stop.prevent="exibirSenha = !exibirSenha" class="eye-icon">
-              </button>
+              <svg v-if="!exibirSenha" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            </button>
           </div>
         </div>
 
@@ -48,15 +50,15 @@ const router = useRouter();
 const mensagem = ref('');
 const exibirSenha = ref(false);
 
-// Use apenas este objeto para o v-model
+// Objeto único para o formulário
 const credenciais = ref({
   email: '',
   senha: ''
 });
 
 const fazerLogin = async () => {
+  mensagem.value = '';
   try {
-    // Usando credenciais.value.email e senha
     const resposta = await axios.post(`${apiURL}/auth/login`, {
       email: credenciais.value.email,
       senha: credenciais.value.senha
@@ -80,21 +82,21 @@ const fazerLogin = async () => {
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
 
 .login-wrapper {
-min-height: 100vh;
-display: flex;
-align-items: center;
-justify-content: center;
-background-color: #f8fafc;
-font-family: 'Plus Jakarta Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8fafc;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .login-card {
-background: white;
-padding: 40px;
-border-radius: 20px;
-box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-width: 100%;
-max-width: 400px;
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  width: 100%;
+  max-width: 400px;
 }
 
 .logo-area { text-align: center; margin-bottom: 30px; }
@@ -106,26 +108,54 @@ max-width: 400px;
 .input-group { display: flex; flex-direction: column; gap: 8px; }
 .input-group label { font-size: 14px; font-weight: 600; color: #475569; text-align: left; }
 
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 input {
-padding: 12px;
-border: 1px solid #e2e8f0;
-border-radius: 12px;
-font-size: 15px;
-transition: 0.2s;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 15px;
+  transition: 0.2s;
+  box-sizing: border-box;
+}
+
+.password-field input {
+  padding-right: 45px;
 }
 
 input:focus { border-color: #10b981; outline: none; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
 
+.eye-icon {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #94a3b8;
+  z-index: 10;
+}
+
+.eye-icon:hover { color: #10b981; }
+
 .btn-login {
-background: #10b981;
-color: white;
-padding: 14px;
-border-radius: 12px;
-border: none;
-font-weight: 700;
-cursor: pointer;
-transition: 0.3s;
-margin-top: 10px;
+  background: #10b981;
+  color: white;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 10px;
 }
 
 .btn-login:hover { background: #059669; transform: translateY(-2px); }
