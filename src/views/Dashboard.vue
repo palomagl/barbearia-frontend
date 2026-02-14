@@ -60,9 +60,20 @@
                             <span class="service-name">{{ item.descricao }}</span>
                             <span class="service-date">📅 {{ formatarData(item.data_hora) }}</span>
                         </div>
-                        <span :class="['status-badge', item.status || 'pendente']">
-                            {{ item.status || 'pendente' }}
-                        </span>
+
+                        <div class="card-actions">
+                            <span :class="['status-badge', item.status || 'pendente']">
+                                {{ item.status || 'pendente' }}
+                            </span>
+
+                            <button 
+                                v-if="podeCancelar(item.data_hora) && item.status !== 'concluido'"
+                                @click="cancelarAgendamento(item.id)" 
+                                class="btn-cancelar"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -144,6 +155,41 @@
     }
   };
   
+  const podeCancelar = (dataHora) => {
+    const agora = new Date();
+    const horarioAgendado = new Date(dataHora);
+    const diffEmHoras = (horarioAgendado - agora) / (1000 * 60 * 60);
+    return diffEmHoras >= 2;
+};
+
+// Função que chama o backend para deletar
+const cancelarAgendamento = async (id) => {
+    const confirmacao = await Swal.fire({
+        title: 'Quer mesmo cancelar?',
+        text: "Essa vaga ficará disponível para outro cliente.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ff4757',
+        cancelButtonColor: '#94a3b8',
+        confirmButtonText: 'Sim, cancelar',
+        cancelButtonText: 'Não, manter'
+    });
+
+    if (confirmacao.isConfirmed) {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.delete(`${apiURL}/agendamentos/cancelar/${id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            Swal.fire('Cancelado!', 'Seu horário foi removido.', 'success');
+            buscarAgendamentos(); // Atualiza a lista
+        } catch (err) {
+            Swal.fire('Erro', err.response?.data?.error || 'Erro ao cancelar', 'error');
+        }
+    }
+};
+
   const formatarData = (data) => new Date(data).toLocaleString('pt-BR');
   const logout = () => { localStorage.removeItem('token'); router.push('/'); };
   
@@ -250,6 +296,22 @@
   .btn-agendar:hover:not(:disabled) { background: #059669; transform: translateY(-2px); }
   .btn-agendar:disabled { background: #cbd5e1; cursor: not-allowed; }
   
+  .btn-cancelar {
+    background: transparent;
+    border: 1px solid #ff4757;
+    color: #ff4757;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-cancelar:hover {
+    background: #ff4757;
+    color: white;
+}
   /* Lista de horários */
   .appointments-grid { display: grid; gap: 15px; }
   .appointment-card {
