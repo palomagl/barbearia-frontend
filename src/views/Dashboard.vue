@@ -141,6 +141,7 @@
             icon: 'error',
             confirmButtonColor: '#ef4444',
         });
+    }
   };
   
   const formatarData = (data) => new Date(data).toLocaleString('pt-BR');
