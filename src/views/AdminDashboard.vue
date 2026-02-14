@@ -10,13 +10,18 @@
 
         <div class="grid-stats">
             <div class="stat-card">
-                <h3>Próximos Agendamentos</h3>
-                <p class="numero">{{ agenda.length }}</p>
+                <h3>Agendamentos Ativos</h3>
+                <p class="numero">{{ agendamentosAtivos.length }}</p>
+            </div>
+            
+            <div class="stat-card faturamento-card">
+                <h3>Faturamento Total</h3>
+                <p class="numero">R$ {{ totalFaturamento.toFixed(2) }}</p>
             </div>
         </div>
 
         <div class="agenda-section">
-            <h3>Agenda Geral de Hoje</h3>
+            <h3>Agenda Geral</h3>
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -24,6 +29,7 @@
                         <th>Cliente</th>
                         <th>Serviço</th>
                         <th>Data/Hora</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,7 +48,14 @@
                         </td>
                         <td>{{ new Date(item.data_hora).toLocaleString('pt-BR') }}</td>
                         <td>
-                            <button @click="concluirServico(item.id)" class="btn-check">Finalizar</button>
+                            <button 
+                                v-if="item.status !== 'concluido'"
+                                @click="concluirServico(item.id)" 
+                                class="btn-check"
+                            >
+                                Finalizar
+                            </button>
+                            <span v-else class="concluido-label">✅ Pago</span>
                         </td>
                     </tr>
                 </tbody>
@@ -52,7 +65,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue'; // Importamos o computed
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
@@ -60,6 +73,18 @@ const apiURL = 'https://barbearia-backend-f6kd.onrender.com';
 
 const agenda = ref([]);
 const router = useRouter();
+
+// LÓGICA DE FATURAMENTO: Soma o preço de tudo que está "concluido"
+const totalFaturamento = computed(() => {
+    return agenda.value
+        .filter(item => item.status === 'concluido')
+        .reduce((acc, item) => acc + parseFloat(item.preco || 0), 0);
+});
+
+// LÓGICA DE CONTAGEM: Apenas o que ainda vai acontecer
+const agendamentosAtivos = computed(() => {
+    return agenda.value.filter(item => item.status !== 'concluido');
+});
 
 const buscarTodaAgenda = async () => {
     try {
@@ -70,7 +95,6 @@ const buscarTodaAgenda = async () => {
         agenda.value = res.data;
     } catch (err) {
         console.error(err);
-        alert("Erro de permissão! Voltando para o login...");
         logout();
     }
 };
@@ -78,17 +102,12 @@ const buscarTodaAgenda = async () => {
 const concluirServico = async (id) => {
   try {
     const token = localStorage.getItem('token');
-    
     await axios.patch(`${apiURL}/agendamentos/concluir/${id}`, {}, {
       headers: { Authorization: `Bearer ${token}` }
     });
-
-    alert("Serviço finalizado! 😎");
-    buscarTodaAgenda(); // Isso recarrega a lista
-    
+    buscarTodaAgenda(); 
   } catch (err) {
-    console.error("Erro detalhado:", err.response?.data || err.message);
-    alert("Não foi possível finalizar: " + (err.response?.data?.error || "Erro de conexão"));
+    console.error("Erro:", err);
   }
 };
 
@@ -271,5 +290,15 @@ header {
   color: #166534 !important; 
   text-transform: uppercase;
   font-size: 10px;
+}
+
+.faturamento-card {
+    border-bottom: 4px solid #27ae60 !important;
+}
+
+.concluido-label {
+    color: #27ae60;
+    font-weight: bold;
+    font-size: 0.9em;
 }
 </style>
