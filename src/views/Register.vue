@@ -18,9 +18,24 @@
           </div>
   
           <div class="input-group">
-            <label>Senha</label>
-            <input v-model="usuario.senha" type="password" placeholder="********" />
+            <label>WhatsApp (com DDD)</label>
+            <input v-model="telefone" type="tel" placeholder="11999999999" />
           </div>
+
+          <div class="input-group">
+            <label>Senha</label>
+            <div class="password-field">
+              <input 
+              v-model="usuario.senha" 
+              :type="exibirSenha ? 'text' : 'password'" 
+              placeholder="No mínimo 8 caracteres" 
+            />
+            <button type="button" @click="exibirSenha = !exibirSenha" class="eye-icon">
+              <svg v-if="!exibirSenha" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            </button>
+          </div>
+        </div>
   
           <button @click="realizarCadastro" class="btn-register">Criar minha conta</button>
         </div>
@@ -164,4 +179,38 @@
     font-weight: 700;
     margin-left: 5px;
   }
+  
+  .password-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-field input {
+    width: 100%;
+    padding-right: 45px !important; /* Abre espaço para o ícone */
+}
+
+.eye-icon {
+    position: absolute;
+    right: 15px;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #94a3b8; /* Cor cinza suave */
+    transition: color 0.2s;
+}
+
+.eye-icon:hover {
+    color: #10b981; /* Fica verde quando passa o mouse */
+}
+
+.eye-icon svg {
+    display: block;
+}
   </style>

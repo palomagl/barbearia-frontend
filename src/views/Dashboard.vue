@@ -74,7 +74,8 @@
   import { ref, onMounted, computed } from 'vue';
   import { useRouter } from 'vue-router';
   import axios from 'axios';
-  
+  import Swal from 'sweetalert2';
+
   const apiURL = 'https://barbearia-backend-f6kd.onrender.com';
   const router = useRouter();
   const agendamentos = ref([]);
@@ -124,13 +125,22 @@
             headers: { Authorization: `Bearer ${token}` }
         });
   
-        alert("Agendamento realizado! ✂️");
+        Swal.fire({
+        title: 'Reservado!',
+        text: 'Seu horário foi agendado com sucesso. Te esperamos lá! ✂️',
+        icon: 'success',
+        confirmButtonColor: '#10b981',
+        });
         dataSelecionada.value = '';
         novoAgendamento.value = { descricao: '', hora: '' };
         buscarAgendamentos();
     } catch (err) {
-        alert(err.response?.data?.error || "Erro ao agendar");
-    }
+        Swal.fire({
+            title: 'Ops!',
+            text: err.response?.data?.error || "Não conseguimos marcar seu horário.",
+            icon: 'error',
+            confirmButtonColor: '#ef4444',
+        });
   };
   
   const formatarData = (data) => new Date(data).toLocaleString('pt-BR');

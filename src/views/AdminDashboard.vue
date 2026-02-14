@@ -35,8 +35,7 @@
                 <tbody>
                     <tr v-for="item in agenda" :key="item.id">
                         <td>
-                            <span
-                                :class="['status-tag', item.status === 'concluido' ? 'status-ok' : 'status-pendente']">
+                            <span :class="['status-tag', item.status === 'concluido' ? 'status-ok' : 'status-pendente']">
                                 {{ item.status || 'pendente' }}
                             </span>
                         </td>
@@ -46,16 +45,20 @@
                         <td>
                             <span class="servico-desc">{{ item.descricao }}</span>
                         </td>
-                        <td>{{ new Date(item.data_hora).toLocaleString('pt-BR') }}</td>
+                        <td>{{ formatarData(item.data_hora) }}</td>
                         <td>
-                            <button 
-                                v-if="item.status !== 'concluido'"
-                                @click="concluirServico(item.id)" 
-                                class="btn-check"
-                            >
-                                Finalizar
-                            </button>
-                            <span v-else class="concluido-label">✅ Pago</span>
+                            <div class="acoes-wrapper">
+                                <template v-if="item.status !== 'concluido'">
+                                    <button @click="concluirServico(item.id)" class="btn-check" title="Finalizar Serviço">
+                                        Finalizar
+                                    </button>
+                                    
+                                    <button @click="enviarMensagemWhats(item)" class="btn-whats" title="Enviar Lembrete">
+                                        📱 WhatsApp
+                                    </button>
+                                </template>
+                                <span v-else class="concluido-label">✅ Pago</span>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -65,33 +68,26 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'; // Importamos o computed
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
 
 const apiURL = 'https://barbearia-backend-f6kd.onrender.com';
-
 const agenda = ref([]);
 const router = useRouter();
 
-// LÓGICA DE FATURAMENTO: Soma o preço de tudo que está "concluido"
+// LÓGICA DE FATURAMENTO
 const totalFaturamento = computed(() => {
     return agenda.value
         .filter(item => item.status === 'concluido')
         .reduce((acc, item) => {
-            // Essa linha mágica procura o "R$ 45,00" dentro do texto
             const valorExtraido = item.descricao.match(/R\$\s?(\d+,\d+)/);
-            
-            // Se achar, transforma "45,00" em 45.0 (número)
-            const preco = valorExtraido 
-                ? parseFloat(valorExtraido[1].replace(',', '.')) 
-                : 0;
-                
+            const preco = valorExtraido ? parseFloat(valorExtraido[1].replace(',', '.')) : 0;
             return acc + preco;
         }, 0);
 });
 
-// LÓGICA DE CONTAGEM: Apenas o que ainda vai acontecer
 const agendamentosAtivos = computed(() => {
     return agenda.value.filter(item => item.status !== 'concluido');
 });
@@ -104,22 +100,51 @@ const buscarTodaAgenda = async () => {
         });
         agenda.value = res.data;
     } catch (err) {
-        console.error(err);
         logout();
     }
 };
 
 const concluirServico = async (id) => {
-  try {
-    const token = localStorage.getItem('token');
-    await axios.patch(`${apiURL}/agendamentos/concluir/${id}`, {}, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    buscarTodaAgenda(); 
-  } catch (err) {
-    console.error("Erro:", err);
-  }
+    try {
+        const token = localStorage.getItem('token');
+        await axios.patch(`${apiURL}/agendamentos/concluir/${id}`, {}, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        Swal.fire({
+            icon: 'success',
+            title: 'Serviço Finalizado!',
+            text: 'O faturamento foi atualizado.',
+            confirmButtonColor: '#27ae60'
+        });
+        
+        buscarTodaAgenda(); 
+    } catch (err) {
+        Swal.fire('Erro', 'Não foi possível finalizar o serviço.', 'error');
+    }
 };
+
+// NOVA FUNÇÃO: WHATSAPP
+const enviarMensagemWhats = (item) => {
+    const fone = item.cliente_telefone;
+    
+    if (!fone) {
+        Swal.fire('Sem Telefone', 'Este cliente não cadastrou WhatsApp.', 'warning');
+        return;
+    }
+
+    // Limpeza do número
+    const foneLimpo = fone.replace(/\D/g, '');
+    const numeroFinal = foneLimpo.startsWith('55') ? foneLimpo : `55${foneLimpo}`;
+
+    const mensagem = encodeURIComponent(
+        `Olá ${item.cliente_nome}! 💈 Passando para confirmar seu horário de ${item.descricao} no dia ${formatarData(item.data_hora)}. Confirmado?`
+    );
+    
+    window.open(`https://api.whatsapp.com/send?phone=${numeroFinal}&text=${mensagem}`, '_blank');
+};
+
+const formatarData = (data) => new Date(data).toLocaleString('pt-BR');
 
 const logout = () => {
     localStorage.removeItem('token');
@@ -130,9 +155,9 @@ onMounted(buscarTodaAgenda);
 </script>
 
 <style scoped>
-/* Importando uma fonte mais moderna */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
+/* Seus estilos base mantidos */
 .admin-container {
     max-width: 1100px;
     margin: 0 auto;
@@ -154,131 +179,23 @@ header {
     margin-bottom: 30px;
 }
 
-.logo-area h2 {
-    margin: 0;
-    font-weight: 600;
-    letter-spacing: 1px;
-}
+.logo-area h2 { margin: 0; font-weight: 600; }
+.badge { background: #f1c40f; color: #000; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-left: 10px; }
 
-.badge {
-    background: #f1c40f;
-    color: #000;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: bold;
-    text-transform: uppercase;
-    margin-left: 10px;
-}
+.grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.stat-card { background: white; padding: 25px; border-radius: 15px; border-bottom: 4px solid #f1c40f; }
+.numero { font-size: 36px; font-weight: 600; color: #2c3e50; }
 
-.btn-logout {
-    background: transparent;
-    border: 1px solid #ff4757;
-    color: #ff4757;
-    padding: 8px 18px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.3s;
-}
+.agenda-section { background: white; padding: 30px; border-radius: 15px; }
+.admin-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+.admin-table th { color: #95a5a6; font-weight: 400; text-align: left; padding: 10px 20px; }
+.admin-table td { padding: 20px; background: white; }
 
-.btn-logout:hover {
-    background: #ff4757;
-    color: white;
-}
-
-/* Cards de Estatísticas */
-.grid-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.stat-card {
-    background: white;
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    border-bottom: 4px solid #f1c40f;
-}
-
-.stat-card h3 {
-    color: #7f8c8d;
-    font-size: 14px;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-}
-
-.numero {
-    font-size: 36px;
-    font-weight: 600;
-    color: #2c3e50;
-}
-
-/* Tabela Moderna */
-.agenda-section {
-    background: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-}
-
-.admin-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 10px;
-    /* Dá espaço entre as linhas */
-}
-
-.admin-table th {
-    color: #95a5a6;
-    font-weight: 400;
-    text-align: left;
-    padding: 10px 20px;
-}
-
-.admin-table tbody tr {
-    background-color: #ffffff;
-    transition: transform 0.2s;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
-}
-
-.admin-table tbody tr:hover {
-    transform: scale(1.01);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.admin-table td {
-    padding: 20px;
-    background: white;
-}
-
-.admin-table td:first-child {
-    border-radius: 10px 0 0 10px;
-}
-
-.admin-table td:last-child {
-    border-radius: 0 10px 10px 0;
-}
-
-.cliente-nome {
-    font-weight: 600;
-    color: #2c3e50;
-    display: block;
-}
-
-.servico-desc {
-    color: #7f8c8d;
-    font-size: 14px;
-}
-
-.status-tag {
-    background: #e1f5fe;
-    color: #039be5;
-    padding: 5px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
+/* Estilização das Ações */
+.acoes-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }
 
 .btn-check {
@@ -286,29 +203,31 @@ header {
     color: white;
     border: none;
     padding: 8px 15px;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
-}
-.status-pendente { 
-  background: #fff4e6 !important; 
-  color: #d97706 !important; 
+    transition: 0.2s;
 }
 
-.status-ok { 
-  background: #dcfce7 !important; 
-  color: #166534 !important; 
-  text-transform: uppercase;
-  font-size: 10px;
-}
-
-.faturamento-card {
-    border-bottom: 4px solid #27ae60 !important;
-}
-
-.concluido-label {
-    color: #27ae60;
+.btn-whats {
+    background: #25d366;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
     font-weight: bold;
-    font-size: 0.9em;
+    transition: 0.2s;
 }
+
+.btn-whats:hover { background: #128c7e; transform: translateY(-2px); }
+.btn-check:hover { background: #1e8449; transform: translateY(-2px); }
+
+.status-tag { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+.status-pendente { background: #fff4e6; color: #d97706; }
+.status-ok { background: #dcfce7; color: #166534; }
+
+.btn-logout { background: transparent; border: 1px solid #ff4757; color: #ff4757; padding: 8px 18px; border-radius: 8px; cursor: pointer; }
+.btn-logout:hover { background: #ff4757; color: white; }
+.concluido-label { color: #27ae60; font-weight: bold; }
 </style>
