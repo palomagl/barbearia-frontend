@@ -78,7 +78,17 @@ const router = useRouter();
 const totalFaturamento = computed(() => {
     return agenda.value
         .filter(item => item.status === 'concluido')
-        .reduce((acc, item) => acc + parseFloat(item.preco || 0), 0);
+        .reduce((acc, item) => {
+            // Essa linha mágica procura o "R$ 45,00" dentro do texto
+            const valorExtraido = item.descricao.match(/R\$\s?(\d+,\d+)/);
+            
+            // Se achar, transforma "45,00" em 45.0 (número)
+            const preco = valorExtraido 
+                ? parseFloat(valorExtraido[1].replace(',', '.')) 
+                : 0;
+                
+            return acc + preco;
+        }, 0);
 });
 
 // LÓGICA DE CONTAGEM: Apenas o que ainda vai acontecer
