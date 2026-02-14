@@ -67,7 +67,7 @@
                             </span>
 
                             <button 
-                                v-if="podeCancelar(item.data_hora) && item.status !== 'concluido'"
+                                v-if="podeCancelar(item.data_hora) && (item.status === 'pendente' || !item.status)"
                                 @click="cancelarAgendamento(item.id)" 
                                 class="btn-cancelar"
                             >
@@ -260,6 +260,12 @@ const cancelarAgendamento = async (id) => {
     margin-top: 10px;
   }
   
+  .card-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
   .btn-hora {
     padding: 10px 5px;
     border: 1px solid #e2e8f0;
@@ -298,7 +304,7 @@ const cancelarAgendamento = async (id) => {
   
   .btn-cancelar {
     background: transparent;
-    border: 1px solid #ff4757;
+    border: 1px solid #fee2e2;
     color: #ff4757;
     padding: 6px 12px;
     border-radius: 8px;
@@ -306,11 +312,13 @@ const cancelarAgendamento = async (id) => {
     font-weight: 600;
     cursor: pointer;
     transition: 0.2s;
+    white-space: nowrap;
 }
 
 .btn-cancelar:hover {
-    background: #ff4757;
+    background: #ef4444;
     color: white;
+    border-color: #ef4444;
 }
   /* Lista de horários */
   .appointments-grid { display: grid; gap: 15px; }
@@ -322,6 +330,7 @@ const cancelarAgendamento = async (id) => {
       justify-content: space-between;
       align-items: center;
       border: 1px solid #f1f5f9;
+      transition: 0.2s;
   }
   
   .card-info { display: flex; flex-direction: column; gap: 5px; }

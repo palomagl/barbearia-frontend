@@ -14,7 +14,15 @@
 
         <div class="input-group">
           <label>Senha</label>
-          <input v-model="senha" type="password" placeholder="••••••••" />
+          <div class="password-field">
+            <input 
+              v-model="credenciais.senha" 
+              :type="exibirSenha ? 'text' : 'password'" 
+              placeholder="Sua senha" 
+            />
+            <button type="button" @click.stop.prevent="exibirSenha = !exibirSenha" class="eye-icon">
+              </button>
+          </div>
         </div>
 
         <button @click="fazerLogin" class="btn-login">Acessar Sistema</button>
@@ -35,29 +43,36 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 const apiURL = 'https://barbearia-backend-f6kd.onrender.com';
-const email = ref('');
-const senha = ref('');
-const mensagem = ref('');
 const router = useRouter();
 
-const fazerLogin = async () => {
-try {
-  const resposta = await axios.post(`${apiURL}/auth/login`, {
-    email: email.value,
-    senha: senha.value
-  });
-  
-  localStorage.setItem('token', resposta.data.token);
-  const cargo = resposta.data.usuario.cargo;
+const mensagem = ref('');
+const exibirSenha = ref(false);
 
-  if (cargo === 'admin') {
-    router.push('/admin');
-  } else {
-    router.push('/dashboard');
+// Use apenas este objeto para o v-model
+const credenciais = ref({
+  email: '',
+  senha: ''
+});
+
+const fazerLogin = async () => {
+  try {
+    // Usando credenciais.value.email e senha
+    const resposta = await axios.post(`${apiURL}/auth/login`, {
+      email: credenciais.value.email,
+      senha: credenciais.value.senha
+    });
+    
+    localStorage.setItem('token', resposta.data.token);
+    const cargo = resposta.data.usuario.cargo;
+
+    if (cargo === 'admin') {
+      router.push('/admin');
+    } else {
+      router.push('/dashboard');
+    }
+  } catch (err) {
+    mensagem.value = err.response?.data?.error || "E-mail ou senha incorretos.";
   }
-} catch (err) {
-  mensagem.value = err.response?.data?.error || "E-mail ou senha incorretos.";
-}
 };
 </script>
 
