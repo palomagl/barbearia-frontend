@@ -157,6 +157,11 @@ onMounted(buscarTodaAgenda);
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
+/* Reset global para evitar quebras de borda */
+* {
+    box-sizing: border-box;
+}
+
 .admin-container {
     max-width: 1100px;
     margin: 0 auto;
@@ -216,7 +221,13 @@ header {
 .btn-logout:hover { background: #ff4757; color: white; }
 .concluido-label { color: #27ae60; font-weight: bold; }
 
+/* AJUSTE MOBILE CORRIGIDO */
 @media (max-width: 768px) {
+    .admin-container {
+        padding: 20px 15px;
+        overflow-x: hidden; /* Trava o scroll lateral */
+    }
+
     header { 
         flex-direction: column; 
         gap: 15px; 
@@ -225,37 +236,41 @@ header {
     }
 
     .agenda-section { 
-        padding: 10px; 
+        padding: 5px; /* Reduzido para o card não ficar apertado */
         background: transparent; 
+        box-shadow: none;
     }
 
     .admin-table thead { display: none; }
     
     .admin-table, .admin-table tbody, .admin-table tr, .admin-table td {
         display: block;
-        width: 100%;
+        width: 100%; /* Ocupa exatamente 100% do pai */
     }
 
     .admin-table tr {
         margin-bottom: 20px;
         background: white;
         border-radius: 15px;
-        padding: 20px; /* Espaço generoso dentro do card */
+        padding: 15px; 
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        border: 1px solid #e2e8f0;
+        border: 1px solid #e2e8f0; /* Borda visível em toda a volta */
+        box-sizing: border-box; /* Garante que a borda fique dentro dos 100% */
     }
 
     .admin-table td {
-        display: block; /* Empilha tudo verticalmente */
-        text-align: left; /* Alinhamento natural para leitura */
-        padding: 8px 0;
+        display: block;
+        text-align: left;
+        padding: 10px 0;
         border: none;
         width: 100%;
+        border-bottom: 1px solid #f1f5f9; /* Divisória entre campos do card */
     }
 
+    .admin-table td:last-child { border-bottom: none; }
+
     .admin-table td::before {
-        display: block; /* Força o rótulo a ficar ACIMA do valor */
-        content: attr(data-label);
+        display: block;
         font-weight: 700;
         color: #94a3b8;
         font-size: 11px;
@@ -269,9 +284,8 @@ header {
     .admin-table td:nth-of-type(4)::before { content: "Data e Hora"; }
     .admin-table td:nth-of-type(5)::before { content: "Ações"; }
 
-    /* Ajuste especial para os botões no final do card */
     .acoes-wrapper {
-        display: grid; /* Grid com duas colunas para os botões */
+        display: grid; 
         grid-template-columns: 1fr 1fr;
         gap: 10px;
         margin-top: 15px;
@@ -283,6 +297,9 @@ header {
         padding: 12px 5px;
         font-size: 13px;
         margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 }
 </style>
