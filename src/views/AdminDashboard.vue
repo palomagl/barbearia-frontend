@@ -216,16 +216,20 @@ header {
 .btn-logout:hover { background: #ff4757; color: white; }
 .concluido-label { color: #27ae60; font-weight: bold; }
 
-/* ============================================================
-   RESPONSIVIDADE (A MÁGICA ACONTECE AQUI)
-   ============================================================ */
-
 @media (max-width: 768px) {
-    header { flex-direction: column; gap: 15px; text-align: center; padding: 20px; }
-    .logo-area { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .badge { margin: 0; }
+    header { 
+        flex-direction: column; 
+        gap: 15px; 
+        text-align: center; 
+        padding: 20px; 
+    }
 
-    .admin-table thead { display: none; /* Esconde o cabeçalho chato */ }
+    .agenda-section { 
+        padding: 10px; 
+        background: transparent; 
+    }
+
+    .admin-table thead { display: none; }
     
     .admin-table, .admin-table tbody, .admin-table tr, .admin-table td {
         display: block;
@@ -234,38 +238,51 @@ header {
 
     .admin-table tr {
         margin-bottom: 20px;
+        background: white;
+        border-radius: 15px;
+        padding: 20px; /* Espaço generoso dentro do card */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-        overflow: hidden;
     }
 
     .admin-table td {
-        text-align: right;
-        padding: 12px 20px;
-        position: relative;
+        display: block; /* Empilha tudo verticalmente */
+        text-align: left; /* Alinhamento natural para leitura */
+        padding: 8px 0;
         border: none;
-        border-bottom: 1px solid #f8fafc;
-        display: flex;
-        justify-content: space-between; /* Alinha descrição na esquerda e valor na direita */
-        align-items: center;
+        width: 100%;
     }
 
-    /* Criamos rótulos para identificar o que é cada dado no mobile */
     .admin-table td::before {
+        display: block; /* Força o rótulo a ficar ACIMA do valor */
+        content: attr(data-label);
         font-weight: 700;
         color: #94a3b8;
-        font-size: 12px;
+        font-size: 11px;
         text-transform: uppercase;
+        margin-bottom: 4px;
     }
 
     .admin-table td:nth-of-type(1)::before { content: "Status"; }
     .admin-table td:nth-of-type(2)::before { content: "Cliente"; }
     .admin-table td:nth-of-type(3)::before { content: "Serviço"; }
-    .admin-table td:nth-of-type(4)::before { content: "Data/Hora"; }
+    .admin-table td:nth-of-type(4)::before { content: "Data e Hora"; }
     .admin-table td:nth-of-type(5)::before { content: "Ações"; }
 
-    .acoes-wrapper { justify-content: flex-end; width: 100%; }
-    .btn-check, .btn-whats { padding: 10px 12px; flex: 1; text-align: center; }
+    /* Ajuste especial para os botões no final do card */
+    .acoes-wrapper {
+        display: grid; /* Grid com duas colunas para os botões */
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 15px;
+        width: 100%;
+    }
+
+    .btn-check, .btn-whats {
+        width: 100%;
+        padding: 12px 5px;
+        font-size: 13px;
+        margin: 0;
+    }
 }
 </style>
