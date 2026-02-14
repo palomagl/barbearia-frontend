@@ -157,7 +157,6 @@ onMounted(buscarTodaAgenda);
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-/* Seus estilos base mantidos */
 .admin-container {
     max-width: 1100px;
     margin: 0 auto;
@@ -186,48 +185,87 @@ header {
 .stat-card { background: white; padding: 25px; border-radius: 15px; border-bottom: 4px solid #f1c40f; }
 .numero { font-size: 36px; font-weight: 600; color: #2c3e50; }
 
-.agenda-section { background: white; padding: 30px; border-radius: 15px; }
+.agenda-section { background: white; padding: 30px; border-radius: 15px; overflow: hidden; }
 .admin-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
 .admin-table th { color: #95a5a6; font-weight: 400; text-align: left; padding: 10px 20px; }
-.admin-table td { padding: 20px; background: white; }
+.admin-table td { padding: 20px; background: white; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
 
 /* Estilização das Ações */
-.acoes-wrapper {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
+.acoes-wrapper { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
-.btn-check {
-    background: #27ae60;
-    color: white;
+.btn-check, .btn-whats {
     border: none;
     padding: 8px 15px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
     transition: 0.2s;
+    font-size: 13px;
 }
-
-.btn-whats {
-    background: #25d366;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.2s;
-}
+.btn-check { background: #27ae60; color: white; }
+.btn-whats { background: #25d366; color: white; }
 
 .btn-whats:hover { background: #128c7e; transform: translateY(-2px); }
 .btn-check:hover { background: #1e8449; transform: translateY(-2px); }
 
-.status-tag { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+.status-tag { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
 .status-pendente { background: #fff4e6; color: #d97706; }
 .status-ok { background: #dcfce7; color: #166534; }
 
 .btn-logout { background: transparent; border: 1px solid #ff4757; color: #ff4757; padding: 8px 18px; border-radius: 8px; cursor: pointer; }
 .btn-logout:hover { background: #ff4757; color: white; }
 .concluido-label { color: #27ae60; font-weight: bold; }
+
+/* ============================================================
+   RESPONSIVIDADE (A MÁGICA ACONTECE AQUI)
+   ============================================================ */
+
+@media (max-width: 768px) {
+    header { flex-direction: column; gap: 15px; text-align: center; padding: 20px; }
+    .logo-area { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .badge { margin: 0; }
+
+    .admin-table thead { display: none; /* Esconde o cabeçalho chato */ }
+    
+    .admin-table, .admin-table tbody, .admin-table tr, .admin-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .admin-table tr {
+        margin-bottom: 20px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        overflow: hidden;
+    }
+
+    .admin-table td {
+        text-align: right;
+        padding: 12px 20px;
+        position: relative;
+        border: none;
+        border-bottom: 1px solid #f8fafc;
+        display: flex;
+        justify-content: space-between; /* Alinha descrição na esquerda e valor na direita */
+        align-items: center;
+    }
+
+    /* Criamos rótulos para identificar o que é cada dado no mobile */
+    .admin-table td::before {
+        font-weight: 700;
+        color: #94a3b8;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+
+    .admin-table td:nth-of-type(1)::before { content: "Status"; }
+    .admin-table td:nth-of-type(2)::before { content: "Cliente"; }
+    .admin-table td:nth-of-type(3)::before { content: "Serviço"; }
+    .admin-table td:nth-of-type(4)::before { content: "Data/Hora"; }
+    .admin-table td:nth-of-type(5)::before { content: "Ações"; }
+
+    .acoes-wrapper { justify-content: flex-end; width: 100%; }
+    .btn-check, .btn-whats { padding: 10px 12px; flex: 1; text-align: center; }
+}
 </style>
