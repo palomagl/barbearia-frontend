@@ -1,8 +1,8 @@
 <template>
-  <div class="auth">
+  <AuthScreen>
     <div class="card auth__card">
       <header class="masthead">
-        <span class="hallmark">💈</span>
+        <span class="hallmark"><BrandMark /></span>
         <span class="wordmark">BarberShop</span>
         <span class="engraved-label masthead__role">Salão&nbsp;&middot;&nbsp;Reservas</span>
       </header>
@@ -50,15 +50,17 @@
         <router-link to="/register">Criar conta</router-link>
       </p>
     </div>
-  </div>
+  </AuthScreen>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { apiURL } from '../config/api';
+import AuthScreen from '../components/AuthScreen.vue';
+import BrandMark from '../components/BrandMark.vue';
 
-const apiURL = 'https://barbearia-backend-f6kd.onrender.com';
 const router = useRouter();
 
 const mensagem = ref('');
@@ -93,14 +95,6 @@ const fazerLogin = async () => {
 </script>
 
 <style scoped>
-.auth {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(1rem, 4vw, 3rem);
-}
-
 .auth__card {
   width: 100%;
   max-width: 420px;
@@ -131,10 +125,11 @@ const fazerLogin = async () => {
 .notice {
   margin-top: 1rem;
   padding: 0.6rem 0.75rem;
-  border-left: 1px solid var(--crimson);
+  border-left: 2px solid var(--danger);
   background: var(--paper-deep);
-  color: var(--crimson-deep);
+  color: var(--danger);
   font-size: 0.85rem;
+  border-radius: 0 4px 4px 0;
 }
 
 .rule { margin: 1.5rem 0 1.1rem; }

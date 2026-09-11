@@ -2,7 +2,7 @@
   <div class="shell">
     <header class="topbar">
       <div class="brand">
-        <span class="hallmark">💈</span>
+        <span class="hallmark"><BrandMark /></span>
         <span class="wordmark">BarberShop</span>
         <span class="engraved-label brand__role">Área do Cliente</span>
       </div>
@@ -122,8 +122,9 @@
   import { useRouter } from 'vue-router';
   import axios from 'axios';
   import Swal from 'sweetalert2';
+  import { apiURL } from '../config/api';
+  import BrandMark from '../components/BrandMark.vue';
 
-  const apiURL = 'https://barbearia-backend-f6kd.onrender.com';
   const router = useRouter();
   const agendamentos = ref([]);
   const loading = ref(true);
@@ -210,7 +211,7 @@
         title: 'Reservado!',
         text: 'Seu horário foi agendado com sucesso. Te esperamos lá! ✂️',
         icon: 'success',
-        confirmButtonColor: '#10b981',
+        confirmButtonColor: '#c9a227',
         });
         dataSelecionada.value = '';
         novoAgendamento.value = { descricao: '', hora: '' };
@@ -220,7 +221,7 @@
             title: 'Ops!',
             text: err.response?.data?.error || "Não conseguimos marcar seu horário.",
             icon: 'error',
-            confirmButtonColor: '#ef4444',
+            confirmButtonColor: '#c0554a',
         });
     }
   };
@@ -239,8 +240,8 @@ const cancelarAgendamento = async (id) => {
         text: "Essa vaga ficará disponível para outro cliente.",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#ff4757',
-        cancelButtonColor: '#94a3b8',
+        confirmButtonColor: '#c0554a',
+        cancelButtonColor: '#6b6250',
         confirmButtonText: 'Sim, cancelar',
         cancelButtonText: 'Não, manter'
     });
@@ -293,7 +294,7 @@ const cancelarAgendamento = async (id) => {
   justify-content: space-between;
   gap: 1rem;
   padding-block: 0.5rem 1.25rem;
-  border-bottom: 1px solid var(--steel-line);
+  border-bottom: 1px solid var(--bronze-line);
   margin-bottom: clamp(1.25rem, 3vw, 2rem);
 }
 .brand {
@@ -304,7 +305,7 @@ const cancelarAgendamento = async (id) => {
 }
 .brand__role {
   padding-left: 0.7rem;
-  border-left: 1px solid var(--steel-line);
+  border-left: 1px solid var(--bronze-line);
   font-size: 10px;
 }
 
@@ -334,14 +335,14 @@ const cancelarAgendamento = async (id) => {
   align-items: baseline;
   gap: 0.85rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid var(--steel-faint);
+  border-bottom: 1px solid var(--bronze-faint);
 }
-.record__row:first-child { border-top: 1px solid var(--steel-faint); }
+.record__row:first-child { border-top: 1px solid var(--bronze-faint); }
 .record__row dt { flex: none; width: 4.5rem; }
 .record__row dd {
   font-family: var(--font-engraved);
   font-size: 1.02rem;
-  color: var(--steel);
+  color: var(--bronze);
   position: relative;
 }
 .record__row.is-set dd {
@@ -354,7 +355,7 @@ const cancelarAgendamento = async (id) => {
   right: 0;
   bottom: -0.15em;
   height: 1px;
-  background: var(--crimson);
+  background: var(--gold);
   transform: scaleX(1);
   transform-origin: left;
   animation: strike 0.4s var(--ease);
@@ -377,7 +378,7 @@ const cancelarAgendamento = async (id) => {
   gap: 0.75rem;
   padding: 0.7rem 0.85rem;
   background: var(--paper-deep);
-  border: 1px solid var(--steel-line);
+  border: 1px solid var(--bronze-line);
   border-radius: 2px;
   cursor: pointer;
   transition: border-color 0.16s var(--ease), background-color 0.16s var(--ease);
@@ -391,14 +392,14 @@ const cancelarAgendamento = async (id) => {
   font-size: 0.95rem;
 }
 .option.selected {
-  border-color: var(--crimson);
+  border-color: var(--gold);
   background: var(--paper);
-  box-shadow: inset 0 0 0 1px var(--crimson);
+  box-shadow: inset 0 0 0 1px var(--gold);
 }
-.option.selected .option__price { color: var(--crimson-deep); }
+.option.selected .option__price { color: var(--gold-deep); }
 
 .date-input {
-  color-scheme: light;
+  color-scheme: dark;
   cursor: pointer;
 }
 
@@ -407,7 +408,7 @@ const cancelarAgendamento = async (id) => {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   background: var(--paper);
-  border: 1px solid var(--steel-line);
+  border: 1px solid var(--bronze-line);
 }
 @media (min-width: 560px) {
   .timeplate { grid-template-columns: repeat(4, 1fr); }
@@ -415,8 +416,8 @@ const cancelarAgendamento = async (id) => {
 .slot {
   appearance: none;
   border: 0;
-  border-right: 1px solid var(--steel-faint);
-  border-bottom: 1px solid var(--steel-faint);
+  border-right: 1px solid var(--bronze-faint);
+  border-bottom: 1px solid var(--bronze-faint);
   background: var(--paper);
   color: var(--ink);
   padding: 0.85rem 0.25rem;
@@ -428,7 +429,7 @@ const cancelarAgendamento = async (id) => {
   position: relative;
   transition: color 0.14s var(--ease), background-color 0.14s var(--ease);
 }
-.slot:hover { color: var(--crimson-deep); background: var(--paper-deep); }
+.slot:hover { color: var(--gold-deep); background: var(--paper-deep); }
 .slot.struck {
   background: var(--struck);
   box-shadow: var(--shadow-struck);
@@ -441,7 +442,7 @@ const cancelarAgendamento = async (id) => {
   right: 0.85rem;
   bottom: 0.5rem;
   height: 2px;
-  background: var(--crimson);
+  background: var(--gold);
   transform-origin: left;
   animation: strike 0.35s var(--ease);
 }
@@ -467,7 +468,7 @@ const cancelarAgendamento = async (id) => {
   flex-wrap: wrap;
   padding: 1rem 1.1rem;
   background: var(--paper-deep);
-  border: 1px solid var(--steel-line);
+  border: 1px solid var(--bronze-line);
 }
 .ticket__perf {
   position: absolute;
@@ -475,7 +476,7 @@ const cancelarAgendamento = async (id) => {
   top: -1px;
   bottom: -1px;
   width: 10px;
-  background-image: radial-gradient(circle at 0 50%, transparent 0 3px, var(--steel-line) 3px 4px, transparent 4px);
+  background-image: radial-gradient(circle at 0 50%, transparent 0 3px, var(--bronze-line) 3px 4px, transparent 4px);
   background-size: 10px 12px;
   background-repeat: repeat-y;
 }
@@ -507,8 +508,8 @@ const cancelarAgendamento = async (id) => {
   gap: 0.75rem;
 }
 .ticket.is-concluido { opacity: 0.72; }
-.ticket.is-cancelado .ticket__service { text-decoration: line-through; color: var(--steel); }
-.stamp--void { color: var(--steel); border-color: var(--steel-faint); text-decoration: line-through; }
+.ticket.is-cancelado .ticket__service { text-decoration: line-through; color: var(--bronze); }
+.stamp--void { color: var(--bronze); border-color: var(--bronze-faint); text-decoration: line-through; }
 
 /* narrow / single-column: stack the ticket so the service name never wraps mid-price */
 @media (max-width: 980px) {

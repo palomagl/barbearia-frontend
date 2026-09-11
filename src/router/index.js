@@ -1,13 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from '../views/Login.vue';
-import Dashboard from '../views/Dashboard.vue';
-import AdminDashboard from '../views/AdminDashboard.vue';
 
+// Cada tela carrega só quando a rota é acessada (code-splitting), em vez de
+// tudo ir no mesmo pacote inicial — quem só vai logar não baixa o código do
+// admin, por exemplo.
 const routes = [
-  { path: '/', component: Login },
-  { 
-    path: '/dashboard', 
-    component: Dashboard,
+  { path: '/', component: () => import('../views/Login.vue') },
+  {
+    path: '/dashboard',
+    component: () => import('../views/Dashboard.vue'),
     beforeEnter: (to, from, next) => {
       if (!localStorage.getItem('token')) {
         next('/');
@@ -16,12 +16,12 @@ const routes = [
       }
     }
   },
-  { 
-    path: '/admin', 
-    component: AdminDashboard,
+  {
+    path: '/admin',
+    component: () => import('../views/AdminDashboard.vue'),
     beforeEnter: (to, from, next) => {
       const token = localStorage.getItem('token');
-      // Aqui poderíamos checar o cargo também, 
+      // Aqui poderíamos checar o cargo também,
       // mas por enquanto, vamos garantir que pelo menos esteja logado.
       if (!token) {
         next('/');
