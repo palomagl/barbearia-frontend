@@ -1,40 +1,54 @@
 <template>
-  <div class="login-wrapper">
-    <div class="login-card">
-      <div class="logo-area">
-        <h1>💈 BarberShop</h1>
-        <p>Bem-vindo de volta!</p>
-      </div>
+  <div class="auth">
+    <div class="card auth__card">
+      <header class="masthead">
+        <span class="hallmark">💈</span>
+        <span class="wordmark">BarberShop</span>
+        <span class="engraved-label masthead__role">Salão&nbsp;&middot;&nbsp;Reservas</span>
+      </header>
 
-      <div class="form">
-        <div class="input-group">
-          <label>E-mail</label>
-          <input v-model="credenciais.email" type="email" placeholder="exemplo@email.com" />
-        </div>
+      <hr class="rule rule--double masthead__rule" />
 
-        <div class="input-group">
-          <label>Senha</label>
-          <div class="password-field">
-            <input 
-              v-model="credenciais.senha" 
-              :type="exibirSenha ? 'text' : 'password'" 
-              placeholder="Sua senha" 
+      <h1 class="card__title">Acesse sua conta</h1>
+      <p class="card__sub">Que bom te ver de novo.</p>
+
+      <form class="form" @submit.prevent="fazerLogin">
+        <label class="field">
+          <span class="engraved-label">E-mail</span>
+          <input v-model="credenciais.email" type="email" autocomplete="email" placeholder="voce@email.com" />
+        </label>
+
+        <label class="field">
+          <span class="engraved-label">Senha</span>
+          <span class="field__lock">
+            <input
+              v-model="credenciais.senha"
+              :type="exibirSenha ? 'text' : 'password'"
+              autocomplete="current-password"
+              placeholder="Sua senha"
             />
-            <button type="button" @click.stop.prevent="exibirSenha = !exibirSenha" class="eye-icon">
-              <svg v-if="!exibirSenha" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            <button
+              type="button"
+              class="reveal"
+              :aria-label="exibirSenha ? 'Ocultar senha' : 'Mostrar senha'"
+              @click.stop.prevent="exibirSenha = !exibirSenha"
+            >
+              <svg v-if="!exibirSenha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
             </button>
-          </div>
-        </div>
+          </span>
+        </label>
 
-        <button @click="fazerLogin" class="btn-login">Acessar Sistema</button>
-      </div>
-      
-      <div class="footer-links">
-        <router-link to="/register">Não tem uma conta? <span>Cadastre-se</span></router-link>
-      </div>
+        <p v-if="mensagem" class="notice" role="alert">{{ mensagem }}</p>
 
-      <p v-if="mensagem" class="error-msg">{{ mensagem }}</p>
+        <button type="submit" class="btn btn--primary form__submit">Entrar</button>
+      </form>
+
+      <hr class="rule" />
+      <p class="card__foot">
+        Ainda não tem conta?
+        <router-link to="/register">Criar conta</router-link>
+      </p>
     </div>
   </div>
 </template>
@@ -63,7 +77,7 @@ const fazerLogin = async () => {
       email: credenciais.value.email,
       senha: credenciais.value.senha
     });
-    
+
     localStorage.setItem('token', resposta.data.token);
     const cargo = resposta.data.usuario.cargo;
 
@@ -79,90 +93,54 @@ const fazerLogin = async () => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
-
-.login-wrapper {
+.auth {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f8fafc;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  padding: clamp(1rem, 4vw, 3rem);
 }
 
-.login-card {
-  background: white;
-  padding: 40px;
-  border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+.auth__card {
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  padding: clamp(1.75rem, 5vw, 2.5rem);
 }
 
-.logo-area { text-align: center; margin-bottom: 30px; }
-.logo-area h1 { color: #1e293b; font-size: 28px; margin-bottom: 5px; }
-.logo-area p { color: #64748b; font-size: 14px; }
-
-.form { display: flex; flex-direction: column; gap: 20px; }
-
-.input-group { display: flex; flex-direction: column; gap: 8px; }
-.input-group label { font-size: 14px; font-weight: 600; color: #475569; text-align: left; }
-
-.password-field {
-  position: relative;
+.masthead {
   display: flex;
   align-items: center;
+  gap: 0.7rem;
+}
+.masthead__role {
+  margin-left: auto;
+  font-size: 10px;
+}
+.masthead__rule {
+  margin: 1.1rem 0 1.5rem;
 }
 
-input {
+.card__title { font-size: clamp(1.5rem, 5vw, 1.75rem); }
+
+.form { margin-top: 1.5rem; }
+.form__submit {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  font-size: 15px;
-  transition: 0.2s;
-  box-sizing: border-box;
+  margin-top: 1.5rem;
 }
 
-.password-field input {
-  padding-right: 45px;
+.notice {
+  margin-top: 1rem;
+  padding: 0.6rem 0.75rem;
+  border-left: 1px solid var(--crimson);
+  background: var(--paper-deep);
+  color: var(--crimson-deep);
+  font-size: 0.85rem;
 }
 
-input:focus { border-color: #10b981; outline: none; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+.rule { margin: 1.5rem 0 1.1rem; }
 
-.eye-icon {
-  position: absolute;
-  right: 12px;
-  background: none;
-  border: none;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #94a3b8;
-  z-index: 10;
+.card__foot {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
 }
-
-.eye-icon:hover { color: #10b981; }
-
-.btn-login {
-  background: #10b981;
-  color: white;
-  padding: 14px;
-  border-radius: 12px;
-  border: none;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.3s;
-  margin-top: 10px;
-}
-
-.btn-login:hover { background: #059669; transform: translateY(-2px); }
-
-.footer-links { margin-top: 25px; text-align: center; font-size: 14px; }
-.footer-links a { color: #64748b; text-decoration: none; }
-.footer-links span { color: #10b981; font-weight: 600; }
-
-.error-msg { color: #ef4444; background: #fef2f2; padding: 10px; border-radius: 8px; margin-top: 20px; font-size: 14px; text-align: center; border: 1px solid #fee2e2; }
 </style>

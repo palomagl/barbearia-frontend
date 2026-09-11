@@ -1,88 +1,124 @@
 <template>
-    <div class="dashboard-container">
-        <header class="main-header">
-            <div class="logo-section">
-                <h1>💈 BarberShop</h1>
-                <span class="badge">Área do Cliente</span>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="hallmark">💈</span>
+        <span class="wordmark">BarberShop</span>
+        <span class="engraved-label brand__role">Área do Cliente</span>
+      </div>
+      <button class="btn btn--ghost btn--sm" @click="logout">Sair</button>
+    </header>
+
+    <main class="plate-grid">
+      <!-- ============ Booking card ============ -->
+      <section class="card booking">
+        <h1 class="card__title">Reservar um horário</h1>
+        <p class="card__sub">Escolha o serviço, o dia e a hora.</p>
+
+        <!-- struck record of resolved choices -->
+        <dl class="record">
+          <div class="record__row" :class="{ 'is-set': novoAgendamento.descricao }">
+            <dt class="engraved-label">Serviço</dt>
+            <dd>{{ nomeServico || '—' }}</dd>
+          </div>
+          <div class="record__row" :class="{ 'is-set': dataSelecionada }">
+            <dt class="engraved-label">Dia</dt>
+            <dd class="tnum">{{ dataSelecionada ? formatarDiaLongo(dataSelecionada) : '—' }}</dd>
+          </div>
+          <div class="record__row" :class="{ 'is-set': novoAgendamento.hora }">
+            <dt class="engraved-label">Hora</dt>
+            <dd class="tnum">{{ novoAgendamento.hora || '—' }}</dd>
+          </div>
+        </dl>
+
+        <hr class="rule" />
+
+        <fieldset class="step">
+          <legend class="engraved-label">1 &nbsp;·&nbsp; Serviço</legend>
+          <div class="options">
+            <label
+              v-for="s in servicos"
+              :key="s.value"
+              class="option"
+              :class="{ selected: novoAgendamento.descricao === s.value }"
+            >
+              <input type="radio" name="servico" :value="s.value" v-model="novoAgendamento.descricao" />
+              <span class="option__name">{{ s.nome }}</span>
+              <span class="option__price tnum">{{ s.preco }}</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="step">
+          <legend class="engraved-label">2 &nbsp;·&nbsp; Dia</legend>
+          <input class="date-input tnum" type="date" v-model="dataSelecionada" :min="diaMinimo" />
+        </fieldset>
+
+        <fieldset v-if="dataSelecionada" class="step">
+          <legend class="engraved-label">3 &nbsp;·&nbsp; Hora</legend>
+          <div v-if="horariosDisponiveis.length" class="timeplate">
+            <button
+              v-for="hora in horariosDisponiveis"
+              :key="hora"
+              type="button"
+              class="slot tnum"
+              :class="{ struck: novoAgendamento.hora === hora }"
+              @click="novoAgendamento.hora = hora"
+            >
+              {{ hora }}
+            </button>
+          </div>
+          <p v-else class="empty-note">Sem horários livres neste dia. Tente outra data.</p>
+        </fieldset>
+
+        <button class="btn btn--primary booking__submit" :disabled="!podeAgendar" @click="criarAgendamento">
+          Reservar horário
+        </button>
+      </section>
+
+      <!-- ============ Appointments (tickets) ============ -->
+      <section class="card ledger">
+        <h2 class="card__title">Meus horários</h2>
+
+        <p v-if="loading" class="empty-note">Carregando…</p>
+        <p v-else-if="agendamentos.length === 0" class="empty-note">
+          Você ainda não tem horários marcados.
+        </p>
+
+        <ul v-else class="tickets">
+          <li
+            v-for="item in agendamentos"
+            :key="item.id"
+            class="ticket"
+            :class="statusClass(item)"
+          >
+            <span class="ticket__perf" aria-hidden="true"></span>
+            <div class="ticket__body">
+              <span class="ticket__service">{{ item.descricao }}</span>
+              <span class="ticket__when tnum">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="1.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+                {{ formatarData(item.data_hora) }}
+              </span>
             </div>
-            <button @click="logout" class="btn-logout">Sair</button>
-        </header>
-  
-        <main class="dashboard-grid">
-            <section class="booking-card">
-                <h3>Agendar Horário</h3>
-                <p class="subtitle">Escolha o serviço e o melhor momento para você.</p>
-                
-                <div class="form-group">
-                    <label>1. Selecione o Serviço</label>
-                    <select v-model="novoAgendamento.descricao">
-                        <option value="" disabled>Selecione um serviço...</option>
-                        <option value="Corte Degradê - R$ 45,00">Corte Degradê - R$ 45,00</option>
-                        <option value="Barba Terapia - R$ 35,00">Barba Terapia - R$ 35,00</option>
-                        <option value="Combo (Corte + Barba) - R$ 70,00">Combo (Corte + Barba) - R$ 70,00</option>
-                    </select>
-                </div>
-  
-                <div class="form-group">
-                    <label>2. Escolha o Dia</label>
-                    <input type="date" v-model="dataSelecionada" :min="diaMinimo" />
-                </div>
-  
-                <div v-if="dataSelecionada" class="form-group">
-                    <label>3. Escolha o Horário</label>
-                    <div class="horarios-grid">
-                        <button 
-                            v-for="hora in listaHorarios" 
-                            :key="hora"
-                            type="button"
-                            :class="['btn-hora', { 'selecionado': novoAgendamento.hora === hora }]"
-                            @click="novoAgendamento.hora = hora"
-                        >
-                            {{ hora }}
-                        </button>
-                    </div>
-                </div>
-  
-                <button @click="criarAgendamento" class="btn-agendar" :disabled="!podeAgendar">
-                    Confirmar Agendamento
-                </button>
-            </section>
-  
-            <section class="list-section">
-                <h3>Meus Horários</h3>
-                <div v-if="loading" class="loader">Carregando...</div>
-                <div v-else-if="agendamentos.length === 0" class="empty-state">
-                    <p>Você ainda não tem agendamentos ativos.</p>
-                </div>
-                <div v-else class="appointments-grid">
-                    <div v-for="item in agendamentos" :key="item.id" class="appointment-card">
-                        <div class="card-info">
-                            <span class="service-name">{{ item.descricao }}</span>
-                            <span class="service-date">📅 {{ formatarData(item.data_hora) }}</span>
-                        </div>
+            <div class="ticket__side">
+              <span class="stamp" :class="stampClass(item)">{{ item.status || 'pendente' }}</span>
+              <button
+                v-if="podeCancelar(item.data_hora) && (item.status === 'pendente' || !item.status)"
+                class="btn btn--ghost btn--sm"
+                @click="cancelarAgendamento(item.id)"
+              >
+                Cancelar
+              </button>
+            </div>
+          </li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</template>
 
-                        <div class="card-actions">
-                            <span :class="['status-badge', item.status || 'pendente']">
-                                {{ item.status || 'pendente' }}
-                            </span>
-
-                            <button 
-                                v-if="podeCancelar(item.data_hora) && (item.status === 'pendente' || !item.status)"
-                                @click="cancelarAgendamento(item.id)" 
-                                class="btn-cancelar"
-                            >
-                                Cancelar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-  </template>
-  
-  <script setup>
-  import { ref, onMounted, computed } from 'vue';
+<script setup>
+  import { ref, onMounted, computed, watch } from 'vue';
   import { useRouter } from 'vue-router';
   import axios from 'axios';
   import Swal from 'sweetalert2';
@@ -91,25 +127,59 @@
   const router = useRouter();
   const agendamentos = ref([]);
   const loading = ref(true);
-  
+
   const dataSelecionada = ref('');
   const novoAgendamento = ref({
     descricao: '',
     hora: ''
   });
-  
+
+  // Menu fixo de serviços (o value continua igual ao que o backend espera)
+  const servicos = [
+    { nome: 'Corte Degradê', preco: 'R$ 45,00', value: 'Corte Degradê - R$ 45,00' },
+    { nome: 'Barba Terapia', preco: 'R$ 35,00', value: 'Barba Terapia - R$ 35,00' },
+    { nome: 'Combo (Corte + Barba)', preco: 'R$ 70,00', value: 'Combo (Corte + Barba) - R$ 70,00' }
+  ];
+
   const listaHorarios = ref([
-      '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', 
-      '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', 
+      '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+      '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
       '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00'
   ]);
-  
+
+  const nomeServico = computed(() => {
+    const s = servicos.find(s => s.value === novoAgendamento.value.descricao);
+    return s ? `${s.nome} · ${s.preco}` : '';
+  });
+
+  // Esconde horários que já passaram quando o dia escolhido é hoje.
+  // Só filtra a lista visível — não muda nenhuma chamada de API.
+  const horariosDisponiveis = computed(() => {
+    if (!dataSelecionada.value) return [];
+    const agora = new Date();
+    const hojeStr = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}-${String(agora.getDate()).padStart(2, '0')}`;
+    if (dataSelecionada.value !== hojeStr) return listaHorarios.value;
+    return listaHorarios.value.filter(h => {
+      const [hh, mm] = h.split(':').map(Number);
+      const alvo = new Date();
+      alvo.setHours(hh, mm, 0, 0);
+      return alvo.getTime() > agora.getTime();
+    });
+  });
+
+  // Se o horário escolhido sumir da lista (troca de dia), limpa a seleção.
+  watch(horariosDisponiveis, (lista) => {
+    if (novoAgendamento.value.hora && !lista.includes(novoAgendamento.value.hora)) {
+      novoAgendamento.value.hora = '';
+    }
+  });
+
   const podeAgendar = computed(() => {
     return novoAgendamento.value.descricao && dataSelecionada.value && novoAgendamento.value.hora;
   });
-  
+
   const diaMinimo = new Date().toISOString().split('T')[0];
-  
+
   const buscarAgendamentos = async () => {
     try {
         const token = localStorage.getItem('token');
@@ -123,19 +193,19 @@
         loading.value = false;
     }
   };
-  
+
   const criarAgendamento = async () => {
     try {
         const token = localStorage.getItem('token');
         const dataHoraFinal = `${dataSelecionada.value}T${novoAgendamento.value.hora}:00`;
-  
+
         await axios.post(`${apiURL}/agendamentos/novo`, {
             descricao: novoAgendamento.value.descricao,
             data_hora: dataHoraFinal
         }, {
             headers: { Authorization: `Bearer ${token}` }
         });
-  
+
         Swal.fire({
         title: 'Reservado!',
         text: 'Seu horário foi agendado com sucesso. Te esperamos lá! ✂️',
@@ -154,7 +224,7 @@
         });
     }
   };
-  
+
   const podeCancelar = (dataHora) => {
     const agora = new Date();
     const horarioAgendado = new Date(dataHora);
@@ -191,154 +261,258 @@ const cancelarAgendamento = async (id) => {
 };
 
   const formatarData = (data) => new Date(data).toLocaleString('pt-BR');
+
+  const formatarDiaLongo = (dateStr) =>
+    new Date(`${dateStr}T12:00:00`).toLocaleDateString('pt-BR', {
+      weekday: 'long', day: '2-digit', month: 'long'
+    });
+
+  const statusClass = (item) => `is-${item.status || 'pendente'}`;
+  const stampClass = (item) => {
+    if (item.status === 'concluido') return 'stamp--done';
+    if (item.status === 'cancelado') return 'stamp--void';
+    return 'stamp--open';
+  };
+
   const logout = () => { localStorage.removeItem('token'); router.push('/'); };
-  
+
   onMounted(buscarAgendamentos);
-  </script>
-  
-  <style scoped>
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
-  
-  .dashboard-container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 20px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #f8fafc;
-      min-height: 100vh;
-  }
-  
-  .main-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 0;
-      margin-bottom: 30px;
-  }
-  
-  .logo-section h1 { font-size: 24px; color: #1e293b; margin: 0; }
-  .badge { font-size: 11px; background: #e2e8f0; padding: 2px 8px; border-radius: 5px; color: #64748b; font-weight: bold; }
-  
-  .dashboard-grid {
-      display: grid;
-      grid-template-columns: 380px 1fr;
-      gap: 30px;
-  }
-  
-  @media (max-width: 900px) {
-      .dashboard-grid { grid-template-columns: 1fr; }
-  }
-  
-  .booking-card {
-      background: white;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-      height: fit-content;
-  }
-  
-  h3 { margin: 0 0 10px 0; color: #1e293b; }
-  .subtitle { color: #94a3b8; font-size: 14px; margin-bottom: 25px; }
-  
-  .form-group { margin-bottom: 20px; }
-  .form-group label { display: block; font-size: 14px; font-weight: 600; color: #475569; margin-bottom: 8px; }
-  
-  select, input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      font-size: 15px;
-      transition: 0.2s;
-  }
-  
-  /* Grade de horários */
-  .horarios-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-top: 10px;
-  }
-  
-  .card-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+</script>
+
+<style scoped>
+.shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2rem);
 }
 
-  .btn-hora {
-    padding: 10px 5px;
-    border: 1px solid #e2e8f0;
-    background: white;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    color: #475569;
-    transition: 0.2s;
-  }
-  
-  .btn-hora:hover { border-color: #10b981; color: #10b981; background: #f0fff4; }
-  .btn-hora.selecionado {
-    background: #10b981;
-    color: white;
-    border-color: #10b981;
-    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
-  }
-  
-  .btn-agendar {
-      width: 100%;
-      background: #10b981;
-      color: white;
-      border: none;
-      padding: 15px;
-      border-radius: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.3s;
-      margin-top: 10px;
-  }
-  
-  .btn-agendar:hover:not(:disabled) { background: #059669; transform: translateY(-2px); }
-  .btn-agendar:disabled { background: #cbd5e1; cursor: not-allowed; }
-  
-  .btn-cancelar {
-    background: transparent;
-    border: 1px solid #fee2e2;
-    color: #ff4757;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-    white-space: nowrap;
+/* ---- masthead ---- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.5rem 1.25rem;
+  border-bottom: 1px solid var(--steel-line);
+  margin-bottom: clamp(1.25rem, 3vw, 2rem);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+.brand__role {
+  padding-left: 0.7rem;
+  border-left: 1px solid var(--steel-line);
+  font-size: 10px;
 }
 
-.btn-cancelar:hover {
-    background: #ef4444;
-    color: white;
-    border-color: #ef4444;
+/* ---- layout ---- */
+.plate-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 400px) minmax(0, 560px);
+  justify-content: center;
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: start;
 }
-  /* Lista de horários */
-  .appointments-grid { display: grid; gap: 15px; }
-  .appointment-card {
-      background: white;
-      padding: 20px;
-      border-radius: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px solid #f1f5f9;
-      transition: 0.2s;
-  }
-  
-  .card-info { display: flex; flex-direction: column; gap: 5px; }
-  .service-name { font-weight: 700; color: #334155; }
-  .service-date { font-size: 13px; color: #64748b; }
-  .status-badge { padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
-  .pendente { background: #fef3c7; color: #92400e; }
-  .concluido { background: #dcfce7; color: #166534; }
-  .btn-logout { background: none; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; cursor: pointer; color: #64748b; }
-  .empty-state { text-align: center; padding: 40px; color: #94a3b8; border: 2px dashed #e2e8f0; border-radius: 20px; }
-  </style>
+@media (max-width: 980px) {
+  .plate-grid { grid-template-columns: minmax(0, 460px); }
+}
+
+.booking,
+.ledger { padding: clamp(1.5rem, 4vw, 2rem); }
+
+/* ---- struck record ---- */
+.record {
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 0;
+}
+.record__row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--steel-faint);
+}
+.record__row:first-child { border-top: 1px solid var(--steel-faint); }
+.record__row dt { flex: none; width: 4.5rem; }
+.record__row dd {
+  font-family: var(--font-engraved);
+  font-size: 1.02rem;
+  color: var(--steel);
+  position: relative;
+}
+.record__row.is-set dd {
+  color: var(--ink);
+}
+.record__row.is-set dd::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.15em;
+  height: 1px;
+  background: var(--crimson);
+  transform: scaleX(1);
+  transform-origin: left;
+  animation: strike 0.4s var(--ease);
+}
+@keyframes strike {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.rule { margin: 1.25rem 0; }
+
+/* ---- steps ---- */
+.step { margin-bottom: 1.5rem; }
+.step > legend { margin-bottom: 0.6rem; }
+
+.options { display: grid; gap: 0.5rem; }
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  background: var(--paper-deep);
+  border: 1px solid var(--steel-line);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: border-color 0.16s var(--ease), background-color 0.16s var(--ease);
+}
+.option:hover { border-color: var(--ink-soft); }
+.option input { position: absolute; opacity: 0; pointer-events: none; }
+.option__name { flex: 1; font-weight: 500; }
+.option__price {
+  font-family: var(--font-engraved);
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+.option.selected {
+  border-color: var(--crimson);
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--crimson);
+}
+.option.selected .option__price { color: var(--crimson-deep); }
+
+.date-input {
+  color-scheme: light;
+  cursor: pointer;
+}
+
+/* ---- time plate ---- */
+.timeplate {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--paper);
+  border: 1px solid var(--steel-line);
+}
+@media (min-width: 560px) {
+  .timeplate { grid-template-columns: repeat(4, 1fr); }
+}
+.slot {
+  appearance: none;
+  border: 0;
+  border-right: 1px solid var(--steel-faint);
+  border-bottom: 1px solid var(--steel-faint);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.85rem 0.25rem;
+  min-height: 46px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.14s var(--ease), background-color 0.14s var(--ease);
+}
+.slot:hover { color: var(--crimson-deep); background: var(--paper-deep); }
+.slot.struck {
+  background: var(--struck);
+  box-shadow: var(--shadow-struck);
+  color: var(--ink);
+}
+.slot.struck::after {
+  content: "";
+  position: absolute;
+  left: 0.85rem;
+  right: 0.85rem;
+  bottom: 0.5rem;
+  height: 2px;
+  background: var(--crimson);
+  transform-origin: left;
+  animation: strike 0.35s var(--ease);
+}
+
+.booking__submit {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* ---- tickets ---- */
+.tickets {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+.ticket {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.1rem;
+  background: var(--paper-deep);
+  border: 1px solid var(--steel-line);
+}
+.ticket__perf {
+  position: absolute;
+  left: 0;
+  top: -1px;
+  bottom: -1px;
+  width: 10px;
+  background-image: radial-gradient(circle at 0 50%, transparent 0 3px, var(--steel-line) 3px 4px, transparent 4px);
+  background-size: 10px 12px;
+  background-repeat: repeat-y;
+}
+.ticket__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-left: 0.5rem;
+}
+.ticket__service {
+  font-family: var(--font-engraved);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.ticket__when {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+.ticket__when svg { width: 15px; height: 15px; flex: none; }
+.ticket__side {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.ticket.is-concluido { opacity: 0.72; }
+.ticket.is-cancelado .ticket__service { text-decoration: line-through; color: var(--steel); }
+.stamp--void { color: var(--steel); border-color: var(--steel-faint); text-decoration: line-through; }
+
+/* narrow / single-column: stack the ticket so the service name never wraps mid-price */
+@media (max-width: 980px) {
+  .ticket { flex-direction: column; align-items: flex-start; gap: 0.7rem; }
+  .ticket__side { width: 100%; justify-content: space-between; }
+}
+</style>

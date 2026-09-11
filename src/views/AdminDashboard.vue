@@ -1,70 +1,74 @@
 <template>
-    <div class="admin-container">
-        <header>
-            <div class="logo-area">
-                <h2>Painel do Barbeiro 💈</h2>
-                <span class="badge">ADMIN</span>
-            </div>
-            <button @click="logout" class="btn-logout">Sair do Sistema</button>
-        </header>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="hallmark">💈</span>
+        <span class="wordmark">BarberShop</span>
+        <span class="engraved-label brand__role">Livro do Barbeiro</span>
+      </div>
+      <button class="btn btn--ghost btn--sm" @click="logout">Sair</button>
+    </header>
 
-        <div class="grid-stats">
-            <div class="stat-card">
-                <h3>Agendamentos Ativos</h3>
-                <p class="numero">{{ agendamentosAtivos.length }}</p>
-            </div>
-            
-            <div class="stat-card faturamento-card">
-                <h3>Faturamento Total</h3>
-                <p class="numero">R$ {{ totalFaturamento.toFixed(2) }}</p>
-            </div>
-        </div>
+    <main class="card ledgerbook">
+      <h1 class="card__title">Agenda geral</h1>
+      <p class="card__sub">Todos os horários, do mais próximo ao mais distante.</p>
 
-        <div class="agenda-section">
-            <h3>Agenda Geral</h3>
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Status</th>
-                        <th>Cliente</th>
-                        <th>Serviço</th>
-                        <th>Data/Hora</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="item in agenda" :key="item.id">
-                        <td>
-                            <span :class="['status-tag', item.status === 'concluido' ? 'status-ok' : 'status-pendente']">
-                                {{ item.status || 'pendente' }}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="cliente-nome">{{ item.cliente_nome }}</span>
-                        </td>
-                        <td>
-                            <span class="servico-desc">{{ item.descricao }}</span>
-                        </td>
-                        <td>{{ formatarData(item.data_hora) }}</td>
-                        <td>
-                            <div class="acoes-wrapper">
-                                <template v-if="item.status !== 'concluido'">
-                                    <button @click="concluirServico(item.id)" class="btn-check" title="Finalizar Serviço">
-                                        Finalizar
-                                    </button>
-                                    
-                                    <button @click="enviarMensagemWhats(item)" class="btn-whats" title="Enviar Lembrete">
-                                        📱 WhatsApp
-                                    </button>
-                                </template>
-                                <span v-else class="concluido-label">✅ Pago</span>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+      <div class="daybook-wrap">
+        <table class="daybook">
+          <thead>
+            <tr>
+              <th class="engraved-label">Status</th>
+              <th class="engraved-label">Cliente</th>
+              <th class="engraved-label">Serviço</th>
+              <th class="engraved-label">Data / Hora</th>
+              <th class="engraved-label">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in agenda" :key="item.id" :class="{ 'is-done': item.status === 'concluido' }">
+              <td data-col="Status">
+                <span class="stamp" :class="item.status === 'concluido' ? 'stamp--done' : 'stamp--open'">
+                  {{ item.status || 'pendente' }}
+                </span>
+              </td>
+              <td data-col="Cliente"><span class="client">{{ item.cliente_nome }}</span></td>
+              <td data-col="Serviço">{{ item.descricao }}</td>
+              <td data-col="Data / Hora" class="tnum nowrap">{{ formatarData(item.data_hora) }}</td>
+              <td data-col="Ações">
+                <div v-if="item.status !== 'concluido'" class="row-actions">
+                  <button class="btn btn--primary btn--sm" @click="concluirServico(item.id)">Finalizar</button>
+                  <button class="btn btn--ghost btn--sm" @click="enviarMensagemWhats(item)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15.5a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5a2 2 0 0 1 2-2h2.2a1 1 0 0 1 1 .84l.7 3.2a1 1 0 0 1-.29.95L8.1 9.9a13 13 0 0 0 6 6l1.9-1.9a1 1 0 0 1 .95-.28l3.2.7a1 1 0 0 1 .85 1z"/></svg>
+                    Lembrete
+                  </button>
+                </div>
+                <span v-else class="engraved-label">Pago</span>
+              </td>
+            </tr>
+            <tr v-if="agenda.length === 0">
+              <td colspan="5" class="empty-cell">
+                <span class="empty-note">Nenhum agendamento na agenda ainda.</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="rule rule--double" />
+
+      <div class="cashup">
+        <div class="cashup__item">
+          <span class="engraved-label">Agendamentos ativos</span>
+          <span class="cashup__val tnum">{{ agendamentosAtivos.length }}</span>
         </div>
-    </div>
+        <div class="cashup__sep" aria-hidden="true"></div>
+        <div class="cashup__item">
+          <span class="engraved-label">Faturamento</span>
+          <span class="cashup__val cashup__val--money tnum">R$ {{ totalFaturamento.toFixed(2).replace('.', ',') }}</span>
+        </div>
+      </div>
+    </main>
+  </div>
 </template>
 
 <script setup>
@@ -110,15 +114,15 @@ const concluirServico = async (id) => {
         await axios.patch(`${apiURL}/agendamentos/concluir/${id}`, {}, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        
+
         Swal.fire({
             icon: 'success',
             title: 'Serviço Finalizado!',
             text: 'O faturamento foi atualizado.',
             confirmButtonColor: '#27ae60'
         });
-        
-        buscarTodaAgenda(); 
+
+        buscarTodaAgenda();
     } catch (err) {
         Swal.fire('Erro', 'Não foi possível finalizar o serviço.', 'error');
     }
@@ -127,7 +131,7 @@ const concluirServico = async (id) => {
 // NOVA FUNÇÃO: WHATSAPP
 const enviarMensagemWhats = (item) => {
     const fone = item.cliente_telefone;
-    
+
     if (!fone) {
         Swal.fire('Sem Telefone', 'Este cliente não cadastrou WhatsApp.', 'warning');
         return;
@@ -140,7 +144,7 @@ const enviarMensagemWhats = (item) => {
     const mensagem = encodeURIComponent(
         `Olá ${item.cliente_nome}! 💈 Passando para confirmar seu horário de ${item.descricao} no dia ${formatarData(item.data_hora)}. Confirmado?`
     );
-    
+
     window.open(`https://api.whatsapp.com/send?phone=${numeroFinal}&text=${mensagem}`, '_blank');
 };
 
@@ -155,151 +159,132 @@ onMounted(buscarTodaAgenda);
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-
-/* Reset global para evitar quebras de borda */
-* {
-    box-sizing: border-box;
+.shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2rem);
 }
 
-.admin-container {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 40px 20px;
-    font-family: 'Poppins', sans-serif;
-    background-color: #f4f7f6;
-    min-height: 100vh;
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.5rem 1.25rem;
+  border-bottom: 1px solid var(--steel-line);
+  margin-bottom: clamp(1.25rem, 3vw, 2rem);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+.brand__role {
+  padding-left: 0.7rem;
+  border-left: 1px solid var(--steel-line);
+  font-size: 10px;
 }
 
-header {
+.ledgerbook { padding: clamp(1.5rem, 4vw, 2.25rem); }
+
+.daybook-wrap {
+  margin-top: 1.5rem;
+  overflow-x: auto;
+}
+
+.daybook {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.daybook thead th {
+  text-align: left;
+  padding: 0 0.75rem 0.6rem;
+  border-bottom: 1px solid var(--steel-line);
+}
+.daybook tbody td {
+  padding: 0.85rem 0.75rem;
+  border-bottom: 1px solid var(--steel-faint);
+  vertical-align: middle;
+}
+.daybook tbody tr:last-child td { border-bottom: 0; }
+.daybook tbody tr.is-done { color: var(--ink-soft); }
+
+.client {
+  font-family: var(--font-engraved);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.nowrap { white-space: nowrap; }
+
+.row-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.empty-cell { padding: 2rem 0.75rem; text-align: center; }
+
+/* ---- cash-up: the till tallied at the foot ---- */
+.rule--double { margin: 1.5rem 0; }
+.cashup {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(1rem, 4vw, 3rem);
+}
+.cashup__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.cashup__sep { width: 1px; background: var(--steel-faint); }
+.cashup__val {
+  font-family: var(--font-engraved);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+.cashup__val--money { color: var(--crimson-deep); }
+
+/* ---- responsive: table folds into engraved slips ---- */
+@media (max-width: 860px) {
+  .daybook-wrap { overflow-x: visible; }
+  .daybook thead { display: none; }
+  .daybook,
+  .daybook tbody,
+  .daybook tr,
+  .daybook td { display: block; width: 100%; }
+  .daybook tbody tr {
+    border: 1px solid var(--steel-line);
+    padding: 0.4rem 0.9rem;
+    margin-bottom: 0.9rem;
+  }
+  .daybook tbody td {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #1a1a1a;
-    padding: 20px 30px;
-    border-radius: 15px;
-    color: white;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    margin-bottom: 30px;
-}
-
-.logo-area h2 { margin: 0; font-weight: 600; }
-.badge { background: #f1c40f; color: #000; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-left: 10px; }
-
-.grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-.stat-card { background: white; padding: 25px; border-radius: 15px; border-bottom: 4px solid #f1c40f; }
-.numero { font-size: 36px; font-weight: 600; color: #2c3e50; }
-
-.agenda-section { background: white; padding: 30px; border-radius: 15px; overflow: hidden; }
-.admin-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-.admin-table th { color: #95a5a6; font-weight: 400; text-align: left; padding: 10px 20px; }
-.admin-table td { padding: 20px; background: white; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
-
-/* Estilização das Ações */
-.acoes-wrapper { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-
-.btn-check, .btn-whats {
-    border: none;
-    padding: 8px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.2s;
-    font-size: 13px;
-}
-.btn-check { background: #27ae60; color: white; }
-.btn-whats { background: #25d366; color: white; }
-
-.btn-whats:hover { background: #128c7e; transform: translateY(-2px); }
-.btn-check:hover { background: #1e8449; transform: translateY(-2px); }
-
-.status-tag { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
-.status-pendente { background: #fff4e6; color: #d97706; }
-.status-ok { background: #dcfce7; color: #166534; }
-
-.btn-logout { background: transparent; border: 1px solid #ff4757; color: #ff4757; padding: 8px 18px; border-radius: 8px; cursor: pointer; }
-.btn-logout:hover { background: #ff4757; color: white; }
-.concluido-label { color: #27ae60; font-weight: bold; }
-
-/* AJUSTE MOBILE CORRIGIDO */
-@media (max-width: 768px) {
-    .admin-container {
-        padding: 20px 15px;
-        overflow-x: hidden; /* Trava o scroll lateral */
-    }
-
-    header { 
-        flex-direction: column; 
-        gap: 15px; 
-        text-align: center; 
-        padding: 20px; 
-    }
-
-    .agenda-section { 
-        padding: 5px; /* Reduzido para o card não ficar apertado */
-        background: transparent; 
-        box-shadow: none;
-    }
-
-    .admin-table thead { display: none; }
-    
-    .admin-table, .admin-table tbody, .admin-table tr, .admin-table td {
-        display: block;
-        width: 100%; /* Ocupa exatamente 100% do pai */
-    }
-
-    .admin-table tr {
-        margin-bottom: 20px;
-        background: white;
-        border-radius: 15px;
-        padding: 15px; 
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        border: 1px solid #e2e8f0; /* Borda visível em toda a volta */
-        box-sizing: border-box; /* Garante que a borda fique dentro dos 100% */
-    }
-
-    .admin-table td {
-        display: block;
-        text-align: left;
-        padding: 10px 0;
-        border: none;
-        width: 100%;
-        border-bottom: 1px solid #f1f5f9; /* Divisória entre campos do card */
-    }
-
-    .admin-table td:last-child { border-bottom: none; }
-
-    .admin-table td::before {
-        display: block;
-        font-weight: 700;
-        color: #94a3b8;
-        font-size: 11px;
-        text-transform: uppercase;
-        margin-bottom: 4px;
-    }
-
-    .admin-table td:nth-of-type(1)::before { content: "Status"; }
-    .admin-table td:nth-of-type(2)::before { content: "Cliente"; }
-    .admin-table td:nth-of-type(3)::before { content: "Serviço"; }
-    .admin-table td:nth-of-type(4)::before { content: "Data e Hora"; }
-    .admin-table td:nth-of-type(5)::before { content: "Ações"; }
-
-    .acoes-wrapper {
-        display: grid; 
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 15px;
-        width: 100%;
-    }
-
-    .btn-check, .btn-whats {
-        width: 100%;
-        padding: 12px 5px;
-        font-size: 13px;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--steel-faint);
+  }
+  .daybook tbody tr td:last-child { border-bottom: 0; }
+  .daybook tbody td::before {
+    content: attr(data-col);
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--label);
+    flex: none;
+  }
+  .daybook tbody td[data-col="Serviço"] { text-align: right; }
+  .row-actions { justify-content: flex-end; }
+  .empty-cell::before { display: none; }
+  .cashup { flex-direction: column; gap: 1rem; }
+  .cashup__sep { width: auto; height: 1px; }
 }
 </style>
