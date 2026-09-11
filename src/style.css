@@ -1,40 +1,51 @@
 /* ============================================================
    BarberShop — "Cartão do Gravador"
-   Engraved trade-card design system. Light, committed.
+   Engraved trade-card design system, in dark + gold: a premium,
+   moody barbershop palette (near-black stock, warm off-white ink,
+   antique-gold signal) instead of the original light ivory card.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,700&display=swap');
 
 :root {
-  /* --- ground: warm ivory card stock, three value steps --- */
-  --page: #ece5d7;
-  --paper: #f6f1e8;
-  --paper-deep: #ebe3d2;
-  --struck: #e6ddc9;
+  /* --- ground: near-black stock, three value steps --- */
+  --page: #0c0b09;
+  --paper: #17140f;
+  --paper-deep: #201b13;
+  --struck: #2a2216;
 
-  /* --- ink --- */
-  --ink: #1c1a17;
-  --ink-soft: #574f45;
-  --label: #5f5849;
+  /* --- ink: warm off-white, stepping down to muted bronze-grey --- */
+  --ink: #f3ecdc;
+  --ink-soft: #ab9f89;
+  --label: #8f8368;
 
-  /* --- steel: structure only, never text --- */
-  --steel: #8a8578;
-  --steel-line: #b3ac9c;
-  --steel-faint: #d8d0be;
+  /* --- bronze: structure only, never text --- */
+  --bronze: #6b6250;
+  --bronze-line: #3a3226;
+  --bronze-faint: #241f16;
 
-  /* --- the one signal --- */
-  --crimson: #b5231f;
-  --crimson-deep: #8f1611;
+  /* --- the one signal: antique gold --- */
+  --gold: #c9a227;
+  --gold-deep: #a3811e;
+  --gold-soft: #e4c869;
 
-  --font-ui: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-engraved: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  /* --- reserved for real errors, kept apart from the gold signal --- */
+  --danger: #c0554a;
+  --danger-deep: #984138;
 
-  --shadow-raise: 0 1px 2px rgba(28, 26, 23, 0.05), 0 14px 34px -18px rgba(28, 26, 23, 0.28);
-  --shadow-struck: inset 0 2px 5px rgba(28, 26, 23, 0.30), inset 0 -1px 0 rgba(255, 255, 255, 0.5);
+  --font-ui: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-engraved: 'Playfair Display', Georgia, 'Times New Roman', serif;
+
+  --radius: 10px;
+  --radius-sm: 6px;
+
+  --shadow-raise: 0 1px 0 rgba(228, 200, 105, 0.05) inset, 0 28px 60px -28px rgba(0, 0, 0, 0.75);
+  --shadow-struck: inset 0 2px 6px rgba(0, 0, 0, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+  --shadow-glow: 0 0 0 1px rgba(201, 162, 39, 0.12);
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 *,
@@ -46,7 +57,11 @@ html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: var(--page);
+  background:
+    radial-gradient(1100px 620px at 12% -10%, rgba(201, 162, 39, 0.09), transparent 60%),
+    radial-gradient(900px 520px at 100% 0%, rgba(201, 162, 39, 0.05), transparent 55%),
+    var(--page);
+  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-ui);
   font-size: 16px;
@@ -63,7 +78,7 @@ fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
 legend { padding: 0; }
 
 a {
-  color: var(--crimson);
+  color: var(--gold-soft);
   text-decoration: none;
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
@@ -88,11 +103,11 @@ input, select, textarea { font-family: inherit; font-size: 16px; color: var(--in
   height: 0;
   margin: 0;
   border: 0;
-  border-top: 1px solid var(--steel-line);
+  border-top: 1px solid var(--bronze-line);
 }
 .rule--double {
-  border-top: 1px solid var(--steel-line);
-  border-bottom: 1px solid var(--steel-line);
+  border-top: 1px solid var(--bronze-line);
+  border-bottom: 1px solid var(--bronze-line);
   height: 3px;
 }
 
@@ -102,24 +117,27 @@ input, select, textarea { font-family: inherit; font-size: 16px; color: var(--in
 .card {
   position: relative;
   background: var(--paper);
-  border: 1px solid var(--steel-line);
-  box-shadow: var(--shadow-raise);
+  border: 1px solid var(--bronze-line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-raise), var(--shadow-glow);
 }
 .card::before {
   content: "";
   position: absolute;
   inset: 6px;
-  border: 1px solid var(--steel-faint);
+  border: 1px solid var(--bronze-faint);
+  border-radius: calc(var(--radius) - 4px);
   pointer-events: none;
 }
 .card > * { position: relative; }
 
 .card__title {
   font-family: var(--font-engraved);
-  font-weight: 600;
-  font-size: 1.6rem;
+  font-weight: 700;
+  font-size: 1.7rem;
   line-height: 1.15;
-  letter-spacing: 0.005em;
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 .card__sub {
   margin-top: 0.35rem;
@@ -127,24 +145,28 @@ input, select, textarea { font-family: inherit; font-size: 16px; color: var(--in
   font-size: 0.95rem;
 }
 
-/* Masthead hallmark keeps the pinned 💈 inside a ruled roundel */
+/* Masthead hallmark: the BrandMark icon inside a ruled roundel */
 .hallmark {
   width: 30px;
   height: 30px;
   flex: none;
   display: grid;
   place-items: center;
-  border: 1px solid var(--steel);
+  border: 1px solid var(--gold);
   border-radius: 999px;
-  font-size: 15px;
-  line-height: 1;
+  color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.08);
+}
+.hallmark svg {
+  width: 15px;
+  height: 15px;
 }
 .wordmark {
   font-family: var(--font-engraved);
-  font-weight: 600;
-  font-size: 1.2rem;
-  letter-spacing: 0.01em;
-  color: var(--ink);
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+  color: var(--gold-soft);
 }
 
 /* --- buttons ----------------------------------------------------------- */
@@ -155,7 +177,7 @@ input, select, textarea { font-family: inherit; font-size: 16px; color: var(--in
   justify-content: center;
   gap: 0.45rem;
   padding: 0.8rem 1.15rem;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   border: 1px solid transparent;
   font-family: var(--font-ui);
   font-size: 0.9rem;
@@ -168,27 +190,27 @@ input, select, textarea { font-family: inherit; font-size: 16px; color: var(--in
 .btn:active { transform: translateY(1px); }
 
 .btn--primary {
-  background: var(--crimson);
-  border-color: var(--crimson-deep);
-  color: #fff;
+  background: linear-gradient(180deg, var(--gold-soft), var(--gold));
+  border-color: var(--gold-deep);
+  color: #171200;
 }
-.btn--primary:hover { background: var(--crimson-deep); }
+.btn--primary:hover { background: linear-gradient(180deg, var(--gold), var(--gold-deep)); }
 .btn--primary:disabled {
   background: var(--paper-deep);
-  border-color: var(--steel-line);
-  color: var(--steel);
+  border-color: var(--bronze-line);
+  color: var(--bronze);
   cursor: not-allowed;
   transform: none;
 }
 
 .btn--ghost {
   background: transparent;
-  border-color: var(--steel-line);
+  border-color: var(--bronze-line);
   color: var(--ink-soft);
 }
 .btn--ghost:hover {
-  border-color: var(--ink);
-  color: var(--ink);
+  border-color: var(--gold);
+  color: var(--gold-soft);
 }
 
 .btn--sm {
@@ -210,8 +232,8 @@ input, select, textarea { font-family: inherit; font-size: 16px; color: var(--in
   width: 100%;
   padding: 0.7rem 0.85rem;
   background: var(--paper-deep);
-  border: 1px solid var(--steel-line);
-  border-radius: 2px;
+  border: 1px solid var(--bronze-line);
+  border-radius: var(--radius-sm);
   color: var(--ink);
   transition: border-color 0.16s var(--ease), box-shadow 0.16s var(--ease);
 }
@@ -219,10 +241,10 @@ input, select, textarea { font-family: inherit; font-size: 16px; color: var(--in
 .date-input:focus,
 .control:focus {
   outline: none;
-  border-color: var(--crimson);
-  box-shadow: inset 0 0 0 1px var(--crimson);
+  border-color: var(--gold);
+  box-shadow: inset 0 0 0 1px var(--gold);
 }
-::placeholder { color: #6f6858; opacity: 1; }
+::placeholder { color: #746a53; opacity: 1; }
 
 .field__lock { position: relative; display: block; }
 .field__lock input { padding-right: 2.75rem; }
@@ -236,17 +258,18 @@ input, select, textarea { font-family: inherit; font-size: 16px; color: var(--in
   background: none;
   border: 0;
   cursor: pointer;
-  color: var(--steel);
+  color: var(--bronze);
   transition: color 0.16s var(--ease);
 }
-.reveal:hover { color: var(--crimson); }
+.reveal:hover { color: var(--gold); }
 .reveal svg { width: 18px; height: 18px; display: block; }
 
 /* status stamp shared by client + admin */
 .stamp {
   display: inline-block;
   padding: 0.2em 0.55em;
-  border: 1px solid var(--steel-line);
+  border: 1px solid var(--bronze-line);
+  border-radius: 3px;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.14em;
@@ -254,8 +277,8 @@ input, select, textarea { font-family: inherit; font-size: 16px; color: var(--in
   color: var(--ink-soft);
   white-space: nowrap;
 }
-.stamp--open { border-color: var(--crimson); color: var(--crimson-deep); }
-.stamp--done { border-color: var(--steel); color: var(--ink-soft); }
+.stamp--open { border-color: var(--gold); color: var(--gold-soft); }
+.stamp--done { border-color: var(--bronze); color: var(--ink-soft); }
 
 .empty-note {
   color: var(--ink-soft);
@@ -266,30 +289,30 @@ input, select, textarea { font-family: inherit; font-size: 16px; color: var(--in
 
 /* --- browser surfaces ------------------------------------------------ */
 
-::selection { background: var(--crimson); color: #fff; }
+::selection { background: var(--gold); color: #171200; }
 :focus-visible {
-  outline: 2px solid var(--crimson);
+  outline: 2px solid var(--gold);
   outline-offset: 2px;
   border-radius: 1px;
 }
 
-* { scrollbar-width: thin; scrollbar-color: var(--steel) transparent; }
+* { scrollbar-width: thin; scrollbar-color: var(--bronze) transparent; }
 ::-webkit-scrollbar { width: 11px; height: 11px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: var(--steel);
+  background: var(--bronze);
   border: 3px solid var(--page);
   border-radius: 999px;
 }
-::-webkit-scrollbar-thumb:hover { background: var(--ink-soft); }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
 /* --- SweetAlert2, themed to the card ------------------------------- */
 
 .swal2-popup {
   background: var(--paper) !important;
-  border: 1px solid var(--steel-line) !important;
-  border-radius: 3px !important;
-  box-shadow: 0 1px 2px rgba(28, 26, 23, 0.05), 0 40px 70px -30px rgba(28, 26, 23, 0.45) !important;
+  border: 1px solid var(--bronze-line) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 1px 0 rgba(228, 200, 105, 0.05) inset, 0 40px 80px -30px rgba(0, 0, 0, 0.85) !important;
   font-family: var(--font-ui) !important;
   color: var(--ink) !important;
   padding: 2rem 1.75rem 1.6rem !important;
@@ -303,25 +326,26 @@ input, select, textarea { font-family: inherit; font-size: 16px; color: var(--in
 .swal2-html-container { color: var(--ink-soft) !important; font-size: 0.95rem !important; }
 .swal2-actions { gap: 0.5rem !important; margin-top: 1.25rem !important; }
 .swal2-styled {
-  border-radius: 2px !important;
+  border-radius: var(--radius-sm) !important;
   box-shadow: none !important;
   font-weight: 600 !important;
   letter-spacing: 0.03em !important;
   font-size: 0.85rem !important;
 }
-.swal2-styled.swal2-confirm { background: var(--crimson) !important; border: 1px solid var(--crimson-deep) !important; color: #fff !important; }
-.swal2-styled.swal2-confirm:hover { background: var(--crimson-deep) !important; }
+.swal2-styled.swal2-confirm { background: var(--gold) !important; border: 1px solid var(--gold-deep) !important; color: #171200 !important; }
+.swal2-styled.swal2-confirm:hover { background: var(--gold-soft) !important; }
 .swal2-styled.swal2-cancel {
   background: transparent !important;
   color: var(--ink-soft) !important;
-  border: 1px solid var(--steel-line) !important;
+  border: 1px solid var(--bronze-line) !important;
 }
-.swal2-icon { border-color: var(--steel-line) !important; }
-.swal2-icon.swal2-success .swal2-success-ring { border-color: rgba(181, 35, 31, 0.25) !important; }
-.swal2-icon.swal2-success [class^='swal2-success-line'] { background-color: var(--crimson) !important; }
-.swal2-icon.swal2-warning { color: var(--crimson) !important; border-color: rgba(181, 35, 31, 0.35) !important; }
-.swal2-icon.swal2-error { color: var(--crimson) !important; border-color: rgba(181, 35, 31, 0.35) !important; }
-.swal2-icon.swal2-error [class^='swal2-x-mark-line'] { background-color: var(--crimson) !important; }
+.swal2-styled.swal2-deny { background: var(--danger) !important; border: 1px solid var(--danger-deep) !important; color: #fff !important; }
+.swal2-icon { border-color: var(--bronze-line) !important; }
+.swal2-icon.swal2-success .swal2-success-ring { border-color: rgba(201, 162, 39, 0.25) !important; }
+.swal2-icon.swal2-success [class^='swal2-success-line'] { background-color: var(--gold) !important; }
+.swal2-icon.swal2-warning { color: var(--gold) !important; border-color: rgba(201, 162, 39, 0.35) !important; }
+.swal2-icon.swal2-error { color: var(--danger) !important; border-color: rgba(192, 85, 74, 0.35) !important; }
+.swal2-icon.swal2-error [class^='swal2-x-mark-line'] { background-color: var(--danger) !important; }
 
 /* --- motion safety ------------------------------------------------- */
 

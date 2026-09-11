@@ -1,8 +1,8 @@
 <template>
-  <div class="auth">
+  <AuthScreen>
     <div class="card auth__card">
       <header class="masthead">
-        <span class="hallmark">💈</span>
+        <span class="hallmark"><BrandMark /></span>
         <span class="wordmark">BarberShop</span>
         <span class="engraved-label masthead__role">Salão&nbsp;&middot;&nbsp;Reservas</span>
       </header>
@@ -58,7 +58,7 @@
         <router-link to="/">Fazer login</router-link>
       </p>
     </div>
-  </div>
+  </AuthScreen>
 </template>
 
 <script setup>
@@ -66,8 +66,10 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2'; // <--- IMPORTANTE: Adicionei esta linha
+import { apiURL } from '../config/api';
+import AuthScreen from '../components/AuthScreen.vue';
+import BrandMark from '../components/BrandMark.vue';
 
-const apiURL = 'https://barbearia-backend-f6kd.onrender.com';
 const router = useRouter();
 
 // VARIÁVEIS QUE ESTAVAM FALTANDO:
@@ -87,7 +89,7 @@ const realizarCadastro = async () => {
       icon: 'warning',
       title: 'Campos incompletos',
       text: 'Por favor, preencha todos os dados, incluindo o WhatsApp!',
-      confirmButtonColor: '#f1c40f'
+      confirmButtonColor: '#c9a227'
     });
     return;
   }
@@ -102,7 +104,7 @@ const realizarCadastro = async () => {
       title: 'Bem-vindo(a)! 🎉',
       text: 'Sua conta foi criada com sucesso. Agora é só agendar seu corte!',
       icon: 'success',
-      confirmButtonColor: '#10b981'
+      confirmButtonColor: '#c9a227'
     });
 
     router.push('/');
@@ -114,14 +116,6 @@ const realizarCadastro = async () => {
 </script>
 
 <style scoped>
-.auth {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(1rem, 4vw, 3rem);
-}
-
 .auth__card {
   width: 100%;
   max-width: 420px;
